@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
-import { employeeApi } from "../api/api"
+import { employeeApi, handleApiError } from "../api/api"
 import type { Employee } from "../types"
 import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
@@ -38,8 +38,7 @@ export default function EmployeeList() {
       setEmployees(data)
       setError(null)
     } catch (err) {
-      setError("Failed to fetch employees")
-      console.error("Error fetching employees:", err)
+      setError(handleApiError(err))
     } finally {
       setLoading(false)
     }
@@ -50,9 +49,9 @@ export default function EmployeeList() {
       try {
         await employeeApi.delete(id)
         setEmployees(employees.filter((emp) => emp.id !== id))
+        setError(null)
       } catch (err) {
-        setError("Failed to delete employee")
-        console.error("Error deleting employee:", err)
+        setError(handleApiError(err))
       }
     }
   }

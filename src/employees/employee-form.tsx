@@ -10,7 +10,7 @@ import { Input } from "../ui/Input"
 import { Label } from "../ui/Label"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/Select"
-import { employeeApi, departmentApi } from "../api/api"
+import { employeeApi, departmentApi, handleApiError } from "../api/api"
 import type { Employee, Department, CreateEmployeeRequest, UpdateEmployeeRequest } from '../types/index'
 
 export default function EmployeeForm() {
@@ -58,8 +58,7 @@ export default function EmployeeForm() {
       })
       setError(null)
     } catch (err) {
-      setError("Failed to fetch employee details")
-      console.error("Error fetching employee:", err)
+      setError(handleApiError(err))
     } finally {
       setLoading(false)
     }
@@ -67,10 +66,14 @@ export default function EmployeeForm() {
 
   const fetchDepartments = async () => {
     try {
+      setLoading(true)
       const data = await departmentApi.getAll()
       setDepartments(data)
+      setError(null)
     } catch (err) {
-      console.error("Error fetching departments:", err)
+      setError(handleApiError(err))
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -125,8 +128,7 @@ export default function EmployeeForm() {
 
       navigate("/employees")
     } catch (err) {
-      setError(`Failed to ${isEditing ? "update" : "create"} employee`)
-      console.error(`Error ${isEditing ? "updating" : "creating"} employee:`, err)
+      setError(handleApiError(err))
     } finally {
       setLoading(false)
     }

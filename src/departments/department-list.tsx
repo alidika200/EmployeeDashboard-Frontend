@@ -7,7 +7,7 @@ import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card"
 import { Badge } from "../ui/Badge"
-import { departmentApi } from "../api/api"
+import { departmentApi, handleApiError } from "../api/api"
 import type { Department } from "../types"
 
 export default function DepartmentList() {
@@ -37,8 +37,7 @@ export default function DepartmentList() {
       setDepartments(data)
       setError(null)
     } catch (err) {
-      setError("Failed to fetch departments")
-      console.error("Error fetching departments:", err)
+      setError(handleApiError(err))
     } finally {
       setLoading(false)
     }
@@ -49,9 +48,9 @@ export default function DepartmentList() {
       try {
         await departmentApi.delete(id)
         setDepartments(departments.filter((dept) => dept.id !== id))
+        setError(null)
       } catch (err) {
-        setError("Failed to delete department")
-        console.error("Error deleting department:", err)
+        setError(handleApiError(err))
       }
     }
   }
