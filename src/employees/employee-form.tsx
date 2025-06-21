@@ -27,7 +27,7 @@ export default function EmployeeForm() {
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     position: "",
     salary: "",
     departmentId: "",
@@ -50,7 +50,7 @@ export default function EmployeeForm() {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        phone: data.phone || "",
+        phoneNumber: data.phoneNumber || "",
         position: data.position,
         salary: data.salary.toString(),
         departmentId: data.departmentId.toString(),
@@ -108,7 +108,7 @@ export default function EmployeeForm() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.phone || undefined,
+        phoneNumber: formData.phoneNumber || undefined,
         position: formData.position,
         salary: Number.parseFloat(formData.salary),
         departmentId: formData.departmentId,
@@ -198,7 +198,7 @@ export default function EmployeeForm() {
                 <Input
                   id="phone"
                   type="tel"
-                  value={formData.phone}
+                  value={formData.phoneNumber}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                 />
               </div>

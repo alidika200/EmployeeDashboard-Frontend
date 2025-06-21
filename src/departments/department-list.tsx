@@ -43,7 +43,7 @@ export default function DepartmentList() {
     }
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this department?")) {
       try {
         await departmentApi.delete(id)

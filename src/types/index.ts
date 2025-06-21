@@ -11,7 +11,7 @@ export interface Employee {
   firstName: string
   lastName: string
   email: string
-  phone?: string
+  phoneNumber?: string
   position: string
   salary: number
   departmentId: string
@@ -25,7 +25,7 @@ export interface CreateEmployeeRequest {
   firstName: string
   lastName: string
   email: string
-  phone?: string
+  phoneNumber?: string
   position: string
   salary: number
   departmentId: string

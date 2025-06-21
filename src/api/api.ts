@@ -55,7 +55,7 @@ export const employeeApi = {
     return response.data;
   },
 
-  getById: async (id: number): Promise<Employee> => {
+  getById: async (id: string): Promise<Employee> => {
     const response = await api.get<Employee>(`/Employee/get/${id}`);
     return response.data;
   },
@@ -70,7 +70,7 @@ export const employeeApi = {
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/Employee/delete/${id}`);
   },
 };
@@ -82,7 +82,7 @@ export const departmentApi = {
     return response.data;
   },
 
-  getById: async (id: number): Promise<Department> => {
+  getById: async (id: string): Promise<Department> => {
     const response = await api.get<Department>(`/Department/${id}`);
     return response.data;
   },
@@ -92,12 +92,12 @@ export const departmentApi = {
     return response.data;
   },
 
-  update: async (id: number, departmentData: UpdateDepartmentRequest): Promise<Department> => {
+  update: async (id: string, departmentData: UpdateDepartmentRequest): Promise<Department> => {
     const response = await api.put<Department>(`/Department/${id}`, departmentData);
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/Department/delete/${id}`);
   },
 };
