@@ -3,21 +3,19 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
-import { departmentApi, employeeApi, handleApiError } from "../api/api"
-import type { Department, Employee } from "../types"
+import { employeeApi, handleApiError } from "../api/api"
+import type { Employee } from "../types"
 import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card"
 
 export default function EmployeeList() {
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [departmentCache, setDepartmentCache] = useState<Record<string, Department>>({})
   const [expandedEmployees, setExpandedEmployees] = useState<Record<string, Employee>>({})
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({})
-  const [loadingDepartments, setLoadingDepartments] = useState<Record<string, boolean>>({})
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -28,7 +26,6 @@ export default function EmployeeList() {
   useEffect(() => {
     if (!loading && filteredEmployees.length > 0) {
       fetchVisibleEmployeeDetails()
-      fetchDepartmentsForVisibleEmployees()
     }
   }, [filteredEmployees, loading])
 
@@ -81,35 +78,6 @@ export default function EmployeeList() {
     }
   }
 
-  // Fetch departments for all visible employees
-  const fetchDepartmentsForVisibleEmployees = async () => {
-    // Get unique department IDs from employees that we haven't cached yet
-    const uniqueDepartmentIds = filteredEmployees
-      .map(employee => employee.departmentId)
-      .filter(departmentId => departmentId && !departmentCache[departmentId])
-      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
-    
-    const fetchPromises = uniqueDepartmentIds.map(departmentId => {
-      setLoadingDepartments(prev => ({ ...prev, [departmentId]: true }))
-      return departmentApi.getById(departmentId)
-        .then(data => {
-          setDepartmentCache(prev => ({ ...prev, [departmentId]: data }))
-          return departmentId
-        })
-        .catch(err => {
-          console.error(`Error fetching department ${departmentId}:`, handleApiError(err))
-          return departmentId
-        })
-        .finally(() => {
-          setLoadingDepartments(prev => ({ ...prev, [departmentId]: false }))
-        })
-    })
-
-    if (fetchPromises.length > 0) {
-      await Promise.allSettled(fetchPromises)
-    }
-  }
-
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
@@ -131,13 +99,6 @@ export default function EmployeeList() {
   // Helper to get the full employee object (either from expanded details or basic list)
   const getEmployeeData = (employee: Employee) => {
     return expandedEmployees[employee.id] || employee
-  }
-
-  // Helper to get department name
-  const getDepartmentName = (departmentId: string) => {
-    if (!departmentId) return "N/A"
-    if (departmentCache[departmentId]) return departmentCache[departmentId].name
-    return "Loading..."
   }
 
   if (loading) {
@@ -169,7 +130,7 @@ export default function EmployeeList() {
         </Link>
       </div>
 
-      <div className="flex items-center space-x-4">
+      {/* <div className="flex items-center space-x-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -180,14 +141,12 @@ export default function EmployeeList() {
             className="pl-10"
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredEmployees.map((employee) => {
           const employeeData = getEmployeeData(employee)
-          const isLoadingDetails = loadingDetails[employee.id]
-          const isLoadingDepartment = loadingDepartments[employee.departmentId]
-          const departmentName = getDepartmentName(employee.departmentId)
+          const isLoading = loadingDetails[employee.id]
           
           return (
             <Card key={employee.id} className="hover:shadow-lg transition-shadow">
@@ -197,7 +156,7 @@ export default function EmployeeList() {
                     <CardTitle className="text-lg">
                       {employee.firstName} {employee.lastName}
                     </CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">{employee.position}</p>
+                    {/* <p className="text-sm text-gray-600 mt-1">{employee.position}</p> */}
                   </div>
                   <div className="flex space-x-1">
                     <Link to={`/employees/${employee.id}`}>
@@ -231,17 +190,17 @@ export default function EmployeeList() {
                       <span className="font-medium">Phone:</span> {employeeData.phoneNumber}
                     </p>
                   )}
-                  <p className="text-sm text-gray-600">
+                  {/* <p className="text-sm text-gray-600">
                     <span className="font-medium">Department:</span>{" "}
-                    {isLoadingDepartment ? (
+                    {isLoading ? (
                       <span className="inline-block w-16 h-4 bg-gray-200 animate-pulse rounded"></span>
                     ) : (
-                      departmentName
+                      employeeData.department?.name || "N/A"
                     )}
-                  </p>
+                  </p> */}
                   <p className="text-sm text-gray-600">
                     <span className="font-medium">Salary:</span>{" "}
-                    {isLoadingDetails ? (
+                    {isLoading ? (
                       <span className="inline-block w-16 h-4 bg-gray-200 animate-pulse rounded"></span>
                     ) : (
                       employeeData.salary ? `$${employeeData.salary.toLocaleString()}` : "N/A"
