@@ -3,19 +3,21 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react"
-import { employeeApi, handleApiError } from "../api/api"
-import type { Employee } from "../types"
+import { departmentApi, employeeApi, handleApiError } from "../api/api"
+import type { Department, Employee } from "../types"
 import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card"
 
 export default function EmployeeList() {
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [expandedEmployees, setExpandedEmployees] = useState<Record<number, Employee>>({})
+  const [departmentCache, setDepartmentCache] = useState<Record<string, Department>>({})
+  const [expandedEmployees, setExpandedEmployees] = useState<Record<string, Employee>>({})
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
-  const [loadingDetails, setLoadingDetails] = useState<Record<number, boolean>>({})
+  const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({})
+  const [loadingDepartments, setLoadingDepartments] = useState<Record<string, boolean>>({})
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export default function EmployeeList() {
   useEffect(() => {
     if (!loading && filteredEmployees.length > 0) {
       fetchVisibleEmployeeDetails()
+      fetchDepartmentsForVisibleEmployees()
     }
   }, [filteredEmployees, loading])
 
@@ -78,7 +81,36 @@ export default function EmployeeList() {
     }
   }
 
-  const handleDelete = async (id: number) => {
+  // Fetch departments for all visible employees
+  const fetchDepartmentsForVisibleEmployees = async () => {
+    // Get unique department IDs from employees that we haven't cached yet
+    const uniqueDepartmentIds = filteredEmployees
+      .map(employee => employee.departmentId)
+      .filter(departmentId => departmentId && !departmentCache[departmentId])
+      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+    
+    const fetchPromises = uniqueDepartmentIds.map(departmentId => {
+      setLoadingDepartments(prev => ({ ...prev, [departmentId]: true }))
+      return departmentApi.getById(departmentId)
+        .then(data => {
+          setDepartmentCache(prev => ({ ...prev, [departmentId]: data }))
+          return departmentId
+        })
+        .catch(err => {
+          console.error(`Error fetching department ${departmentId}:`, handleApiError(err))
+          return departmentId
+        })
+        .finally(() => {
+          setLoadingDepartments(prev => ({ ...prev, [departmentId]: false }))
+        })
+    })
+
+    if (fetchPromises.length > 0) {
+      await Promise.allSettled(fetchPromises)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         await employeeApi.delete(id)
@@ -99,6 +131,13 @@ export default function EmployeeList() {
   // Helper to get the full employee object (either from expanded details or basic list)
   const getEmployeeData = (employee: Employee) => {
     return expandedEmployees[employee.id] || employee
+  }
+
+  // Helper to get department name
+  const getDepartmentName = (departmentId: string) => {
+    if (!departmentId) return "N/A"
+    if (departmentCache[departmentId]) return departmentCache[departmentId].name
+    return "Loading..."
   }
 
   if (loading) {
@@ -146,7 +185,9 @@ export default function EmployeeList() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredEmployees.map((employee) => {
           const employeeData = getEmployeeData(employee)
-          const isLoading = loadingDetails[employee.id]
+          const isLoadingDetails = loadingDetails[employee.id]
+          const isLoadingDepartment = loadingDepartments[employee.departmentId]
+          const departmentName = getDepartmentName(employee.departmentId)
           
           return (
             <Card key={employee.id} className="hover:shadow-lg transition-shadow">
@@ -192,15 +233,15 @@ export default function EmployeeList() {
                   )}
                   <p className="text-sm text-gray-600">
                     <span className="font-medium">Department:</span>{" "}
-                    {isLoading ? (
+                    {isLoadingDepartment ? (
                       <span className="inline-block w-16 h-4 bg-gray-200 animate-pulse rounded"></span>
                     ) : (
-                      employeeData.department?.name || "N/A"
+                      departmentName
                     )}
                   </p>
                   <p className="text-sm text-gray-600">
                     <span className="font-medium">Salary:</span>{" "}
-                    {isLoading ? (
+                    {isLoadingDetails ? (
                       <span className="inline-block w-16 h-4 bg-gray-200 animate-pulse rounded"></span>
                     ) : (
                       employeeData.salary ? `$${employeeData.salary.toLocaleString()}` : "N/A"

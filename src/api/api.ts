@@ -83,7 +83,7 @@ export const departmentApi = {
   },
 
   getById: async (id: string): Promise<Department> => {
-    const response = await api.get<Department>(`/Department/${id}`);
+    const response = await api.get<Department>(`/Department/get/${id}`);
     return response.data;
   },
 
