@@ -17,6 +17,7 @@ export default function DepartmentForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const isEditing = Boolean(id)
+  console.log("DepartmentForm component before parse:", id)
 
   const [department, setDepartment] = useState<Department | null>(null)
   const [loading, setLoading] = useState(false)
@@ -29,11 +30,13 @@ export default function DepartmentForm() {
 
   useEffect(() => {
     if (isEditing && id) {
-      fetchDepartment(Number.parseInt(id))
+      fetchDepartment(id)
     }
   }, [id, isEditing])
+  console.log("DepartmentForm component after parse:", id)
 
-  const fetchDepartment = async (departmentId: number) => {
+  const fetchDepartment = async (departmentId: string) => {
+    console.log("Fetching department with ID:", departmentId)
     try {
       setLoading(true)
       const data = await departmentApi.getById(departmentId)
@@ -77,10 +80,11 @@ export default function DepartmentForm() {
 
       if (isEditing && id) {
         const updateData: UpdateDepartmentRequest = {
-          id: Number.parseInt(id),
+          id: id,
           ...departmentData,
         }
-        await departmentApi.update(Number.parseInt(id), updateData)
+        console.log("id",id)
+        await departmentApi.update(id, updateData)
       } else {
         const createData: CreateDepartmentRequest = departmentData
         await departmentApi.create(createData)

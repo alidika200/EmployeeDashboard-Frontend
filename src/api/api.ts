@@ -65,7 +65,7 @@ export const employeeApi = {
     return response.data;
   },
 
-  update: async (id: number, employeeData: UpdateEmployeeRequest): Promise<Employee> => {
+  update: async (id: string, employeeData: UpdateEmployeeRequest): Promise<Employee> => {
     const response = await api.put<Employee>(`/Employee/${id}`, employeeData);
     return response.data;
   },

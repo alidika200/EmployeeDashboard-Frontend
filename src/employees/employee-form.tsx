@@ -37,11 +37,11 @@ export default function EmployeeForm() {
   useEffect(() => {
     fetchDepartments()
     if (isEditing && id) {
-      fetchEmployee(Number.parseInt(id))
+      fetchEmployee(id)
     }
   }, [id, isEditing])
 
-  const fetchEmployee = async (employeeId: number) => {
+  const fetchEmployee = async (employeeId: string) => {
     try {
       setLoading(true)
       const data = await employeeApi.getById(employeeId)
@@ -111,16 +111,17 @@ export default function EmployeeForm() {
         phone: formData.phone || undefined,
         position: formData.position,
         salary: Number.parseFloat(formData.salary),
-        departmentId: Number.parseInt(formData.departmentId),
+        departmentId: formData.departmentId,
         hireDate: formData.hireDate,
       }
 
       if (isEditing && id) {
         const updateData: UpdateEmployeeRequest = {
-          id: Number.parseInt(id),
+          id:(id),
           ...employeeData,
         }
-        await employeeApi.update(Number.parseInt(id), updateData)
+        console.log("Updating employee with data:", id)
+        await employeeApi.update(id, updateData)
       } else {
         const createData: CreateEmployeeRequest = employeeData
         await employeeApi.create(createData)

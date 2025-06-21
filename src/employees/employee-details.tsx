@@ -12,18 +12,22 @@ export default function EmployeeDetails() {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  console.log("EmployeeDetails component before parse:", id);
 
   useEffect(() => {
     if (id) {
-      fetchEmployee(Number.parseInt(id));
+      fetchEmployee(id);
     }
   }, [id]);
-
-  const fetchEmployee = async (employeeId: number) => {
+console.log("EmployeeDetails component after parse:", id);
+  const fetchEmployee = async (employeeId: string) => {
+    console.log("Fetching employee with ID:", employeeId);
+  
     try {
       setLoading(true);
       const data = await employeeApi.getById(employeeId);
       setEmployee(data);
+      console.log("Fetched employee data:", data);
       setError(null);
     } catch (err) {
       setError(handleApiError(err));
@@ -107,11 +111,11 @@ export default function EmployeeDetails() {
                 {employee?.firstName} {employee?.lastName}
               </p>
             </div>
-
+{/* 
             <div>
               <h3 className="text-sm font-medium text-gray-500">Position</h3>
               <p className="mt-1 text-lg">{employee?.position}</p>
-            </div>
+            </div> */}
 
             <div>
               <h3 className="text-sm font-medium text-gray-500">Department</h3>
@@ -125,7 +129,7 @@ export default function EmployeeDetails() {
 
             <div>
               <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-              <p className="mt-1 text-lg">{employee?.phone || "-"}</p>
+              <p className="mt-1 text-lg">{employee?.phoneNumber}</p>
             </div>
 
             <div>

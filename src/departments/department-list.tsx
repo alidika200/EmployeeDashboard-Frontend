@@ -55,6 +55,9 @@ export default function DepartmentList() {
     }
   }
 
+ 
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">

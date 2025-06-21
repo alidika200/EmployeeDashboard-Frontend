@@ -1,5 +1,5 @@
 export interface Department {
-  id: number
+  id: string
   name: string
   description?: string
   createdAt: string
@@ -7,14 +7,14 @@ export interface Department {
 }
 
 export interface Employee {
-  id: number
+  id: string
   firstName: string
   lastName: string
   email: string
   phone?: string
   position: string
   salary: number
-  departmentId: number
+  departmentId: string
   department?: Department
   hireDate: string
   createdAt: string
@@ -28,12 +28,12 @@ export interface CreateEmployeeRequest {
   phone?: string
   position: string
   salary: number
-  departmentId: number
+  departmentId: string
   hireDate: string
 }
 
 export interface UpdateEmployeeRequest extends CreateEmployeeRequest {
-  id: number
+  id: string
 }
 
 export interface CreateDepartmentRequest {
@@ -42,7 +42,7 @@ export interface CreateDepartmentRequest {
 }
 
 export interface UpdateDepartmentRequest extends CreateDepartmentRequest {
-  id: number
+  id: string
 }
 
 // Authentication interfaces
